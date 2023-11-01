@@ -24,28 +24,31 @@ class _WeekTaskPageState extends State<WeekTaskPage> {
     return Scaffold(
       backgroundColor: CustomColors.yankeesBlue,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: [
             const GapWidget(gapDirection: GapDirection.column),
             Center(
               child: Text(
                 Utils.instance.getMonth(DateTime.now()),
-                style: textBold20Sp.copyWith(color: CustomColors.white, fontSize: 32),
+                style: textBold20Sp.copyWith(
+                    color: CustomColors.white, fontSize: 32),
               ),
             ),
             const GapWidget(gapDirection: GapDirection.column),
             SizedBox(
               height: 100,
               child: AnimatedHorizontalCalendar(
-                  tableCalenderIcon: const Icon(Icons.calendar_today, color: Colors.white,),
-                  date: DateTime.now(),
-                  textColor: CustomColors.black,
-                  backgroundColor: CustomColors.white,
-                  selectedColor: CustomColors.spaceCadet,
-                  onDateSelected: (date){
-                    Utils.instance.logDebugPrint(msg: date.toString());
-                  },
+                tableCalenderIcon: const Icon(
+                  Icons.calendar_today,
+                  color: Colors.white,
+                ),
+                date: DateTime.now(),
+                textColor: CustomColors.black,
+                backgroundColor: CustomColors.white,
+                selectedColor: CustomColors.spaceCadet,
+                onDateSelected: (date) {
+                  Utils.instance.logDebugPrint(msg: date.toString());
+                },
                 current: DateTime.now(),
               ),
             ),
@@ -55,7 +58,6 @@ class _WeekTaskPageState extends State<WeekTaskPage> {
       ),
     );
   }
-
 
   Widget onGoingTaskSection() {
     return Padding(
@@ -75,19 +77,18 @@ class _WeekTaskPageState extends State<WeekTaskPage> {
           ),
           const GapWidget(
             gapDirection: GapDirection.column,
-            gap: 20.0,
+            gap: 40.0,
           ),
-          const EmptyTask(),
-          /*onGoingTaskListData.isNotEmpty ?
-          ListView.builder(
-              itemCount: onGoingTaskListData.length,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.only(bottom: 20),
-              itemBuilder: (ctx, index) {
-                return onGoingCard(onGoingTaskListData[index]);
-              })
-          : const EmptyTask(),*/
+          onGoingTaskListData.isNotEmpty
+              ? ListView.builder(
+                  itemCount: onGoingTaskListData.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 20),
+                  itemBuilder: (ctx, index) {
+                    return onGoingCard(onGoingTaskListData[index]);
+                  })
+              : const EmptyTask(),
         ],
       ),
     );
@@ -98,56 +99,139 @@ class _WeekTaskPageState extends State<WeekTaskPage> {
     Color progressColor = priority.toLowerCase() == "p1"
         ? CustomColors.menthol
         : priority.toLowerCase() == "p2"
-        ? CustomColors.spiroDiscoBall
-        : CustomColors.lavender;
+            ? CustomColors.spiroDiscoBall
+            : CustomColors.lavender;
 
     return Container(
-      decoration: BoxDecoration(
-        color: progressColor,
-        borderRadius: borderRadius,
-      ),
-      padding: const EdgeInsets.all(10.0),
+      height: 100,
       margin: const EdgeInsets.only(bottom: 20),
       child: Row(
         children: [
-          svgPriority(),
-          const GapWidget(gapDirection: GapDirection.row),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                data.projectName ?? "",
+                "10:00 AM",
                 textAlign: TextAlign.start,
-                style: textMedium16Sp,
+                style: textMedium16Sp.copyWith(color: CustomColors.white),
               ),
               Text(
-                data.task ?? "",
+                "10:00 AM",
                 textAlign: TextAlign.start,
-                style: text14Sp.copyWith(color: CustomColors.darkGreyColor),
-              ),
-              Row(
-                children: [
-                  SizedBox(
-                    height: 5,
-                    width: ScreenInfo.deviceWidth * .2,
-                    child: LinearProgressIndicator(
-                      value: (data.completeValue ?? 0) / 100,
-                      valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-                      backgroundColor: CustomColors.grey,
-                    ),
-                  ),
-                  const GapWidget(gapDirection: GapDirection.row),
-                  Text(
-                    "${data.completeValue}%",
-                    textAlign: TextAlign.start,
-                    style: text14Sp.copyWith(color: progressColor),
-                  ),
-                ],
+                style: textMedium16Sp.copyWith(color: CustomColors.white),
               ),
             ],
           ),
+          const GapWidget(gapDirection: GapDirection.row),
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                _moreInfo(context, data);
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: progressColor,
+                  borderRadius: borderRadius,
+                ),
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            data.projectName ?? "",
+                            textAlign: TextAlign.start,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: textMedium16Sp,
+                          ),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(left: 5),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 2),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5.0),
+                              border: Border.all(
+                                  width: 1.0, color: CustomColors.black)),
+                          child: Text(
+                            data.priority ?? '',
+                            style: text14Sp,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      data.task ?? "",
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.start,
+                      style:
+                          text14Sp.copyWith(color: CustomColors.darkGreyColor),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  void _moreInfo(BuildContext context, OnGoingTaskModel data) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext ctx) {
+        return Container(
+          width: double.maxFinite,
+          padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
+          child: Wrap(
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          data.projectName ?? "",
+                          textAlign: TextAlign.start,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: textMedium16Sp,
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(left: 5),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 2),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5.0),
+                            border: Border.all(
+                                width: 1.0, color: CustomColors.black)),
+                        child: Text(
+                          data.priority ?? '',
+                          style: text14Sp,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    data.task ?? "",
+                    textAlign: TextAlign.start,
+                    style: text14Sp,
+                  ),
+                ],
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 }

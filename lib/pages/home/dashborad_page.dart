@@ -6,6 +6,7 @@ import 'package:project_mangment_flutter/themes/colors.dart';
 import 'package:project_mangment_flutter/themes/style.dart';
 import 'package:project_mangment_flutter/utils/const_string.dart';
 import 'package:project_mangment_flutter/utils/screen_info.dart';
+import 'package:project_mangment_flutter/widget/empty_task.dart';
 import 'package:project_mangment_flutter/widget/gap.dart';
 import 'package:project_mangment_flutter/widget/loader.dart';
 import 'package:project_mangment_flutter/widget/svg_image.dart';
@@ -95,6 +96,7 @@ class _DashboardPageState extends State<DashboardPage> {
             gapDirection: GapDirection.column,
             gap: 20.0,
           ),
+          onGoingTaskListData.isNotEmpty ?
           ListView.builder(
               itemCount: onGoingTaskListData.length,
               shrinkWrap: true,
@@ -102,7 +104,8 @@ class _DashboardPageState extends State<DashboardPage> {
               padding: const EdgeInsets.only(bottom: 20),
               itemBuilder: (ctx, index) {
                 return onGoingCard(onGoingTaskListData[index]);
-              }),
+              })
+              : const EmptyTask(),
         ],
       ),
     );
@@ -184,39 +187,45 @@ class _DashboardPageState extends State<DashboardPage> {
         children: [
           svgPriority(),
           const GapWidget(gapDirection: GapDirection.row),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                data.projectName ?? "",
-                textAlign: TextAlign.start,
-                style: textMedium16Sp.copyWith(color: CustomColors.white),
-              ),
-              Text(
-                data.task ?? "",
-                textAlign: TextAlign.start,
-                style: text14Sp.copyWith(color: CustomColors.grey),
-              ),
-              Row(
-                children: [
-                  SizedBox(
-                    height: 5,
-                    width: ScreenInfo.deviceWidth * .2,
-                    child: LinearProgressIndicator(
-                      value: (data.completeValue ?? 0) / 100,
-                      valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-                      backgroundColor: CustomColors.grey,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data.projectName ?? "",
+                  textAlign: TextAlign.start,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textMedium16Sp.copyWith(color: CustomColors.white),
+                ),
+                Text(
+                  data.task ?? "",
+                  textAlign: TextAlign.start,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: text14Sp.copyWith(color: CustomColors.grey),
+                ),
+                Row(
+                  children: [
+                    SizedBox(
+                      height: 5,
+                      width: ScreenInfo.deviceWidth * .2,
+                      child: LinearProgressIndicator(
+                        value: (data.completeValue ?? 0) / 100,
+                        valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                        backgroundColor: CustomColors.grey,
+                      ),
                     ),
-                  ),
-                  const GapWidget(gapDirection: GapDirection.row),
-                  Text(
-                    "${data.completeValue}%",
-                    textAlign: TextAlign.start,
-                    style: text14Sp.copyWith(color: progressColor),
-                  ),
-                ],
-              ),
-            ],
+                    const GapWidget(gapDirection: GapDirection.row),
+                    Text(
+                      "${data.completeValue}%",
+                      textAlign: TextAlign.start,
+                      style: text14Sp.copyWith(color: progressColor),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
